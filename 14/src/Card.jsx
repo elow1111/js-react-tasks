@@ -1,21 +1,18 @@
 import React from 'react';
 
 // BEGIN (write your solution here)
-const Card = ({ children }) => {
-    return <div className="card">{children}</div>;
-  };
-  
-  Card.Body = ({ children }) => {
-    return <div className="card-body">{children}</div>;
-  };
-  
-  Card.Title = ({ children }) => {
-    return <h4 className="card-title">{children}</h4>;
-  };
-  
-  Card.Text = ({ children }) => {
-    return <p className="card-text">{children}</p>;
-  };
-  
-export default Card;
+const Title = (props) => <h4 className="card-title">{props.children}</h4>;
+const Body = (props) => <div className="card-body">{props.children}</div>;
+const Text = (props) => <p className="card-text">{props.children}</p>;
+
+export default class Card extends React.Component
+{
+    static Body = Body
+    static Title = Title
+    static Text = Text
+    render()
+    {
+        return <div className="card">{this.props.children}</div>;
+    }
+}
 // END
