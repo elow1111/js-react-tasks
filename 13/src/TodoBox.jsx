@@ -2,54 +2,60 @@ import { uniqueId } from 'lodash';
 import React from 'react';
 import Item from './Item.jsx';
 
-// BEGIN (write your solution here)
-import { useState } from 'react';
+export default class TodoBox extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { taskList: [], inputText: '' };
+  }
 
-const TodoBox = () => {
-  const [tasks, setTasks] = useState(() => []);
-  const [inputValue, setInputValue] = useState(() => '');
-
-  const handleAddTask = (e) => {
-    e.preventDefault();
-    if (inputValue.trim() !== '') {
-      const newTask = {
-        id: uniqieId(),
-        task: inputValue,
-      };
-      setTasks(prevTasks => [...prevTasks, newTask]);
-      e.target.reset();
-    }
+  handleAddButton = (e) => {
+    e.preventDefault(); 
+    const { inputText } = this.state;
+    if (inputText.trim() === '') return; 
+    this.setState((prevState) => ({
+      taskList: [...prevState.taskList, { text: inputText, id: uniqueId() }],
+      inputText: '', 
+    }));
   };
 
-  const handleRemoveTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  handleRemove = (deleteId) => {
+    this.setState((prevState) => ({
+      taskList: prevState.taskList.filter((item) => item.id !== deleteId),
+    }));
   };
 
-  return (
-    <div>
-      <div className="mb-3">
-        <form className="d-flex" onSubmit={handleAddTask}>
-          <div className="me-3">
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              required
-              className="form-control"
-              placeholder="I am going..."
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">add</button>
-        </form>
-      </div>
+  handleChange = (e) => {
+    const { value } = e.target;
+    this.setState({ inputText: value });
+  };
+
+  render() {
+    const { taskList, inputText } = this.state;
+    return (
       <div>
-        {tasks.map(task => (
-          <Item key={task.id} task={task.task} onRemove={() => handleRemoveTask(task.id)} />
+        <div className="mb-3">
+          <form className="d-flex">
+            <div className="me-3">
+              <input
+                onChange={this.handleChange}
+                type="text"
+                value={inputText} 
+                required=""
+                className="form-control"
+                placeholder="I am going..."
+              />
+            </div>
+            <button onClick={this.handleAddButton} type="submit" className="btn btn-primary">
+              add
+            </button>
+          </form>
+        </div>
+        {taskList.map((taskListEl) => (
+          <Item key={taskListEl.id} task={taskListEl.text} onRemove={() => this.handleRemove(taskListEl.id)} />
         ))}
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
-export default TodoBox;
 // END
