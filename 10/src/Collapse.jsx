@@ -2,36 +2,46 @@ import React from 'react';
 import cn from 'classnames';
 
 // BEGIN (write your solution here)
-import { useState } from 'react';
+export default class Collapse extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { collapseStatus: this.props.opened };
+    }
 
-const Collapse = ({ text, opened = true }) => {
-  const [isOpen, setIsOpen] = useState(opened);
-  const toggleCollapse = () => {
-      setIsOpen(!isOpen);
-  };
-  return (
-      <div>
-          <p>
-              <a
-                  className="btn btn-primary"
-                  href="#"
-                  role="button"
-                  aria-expanded={isOpen}
-                  data-bs-toggle="collapse"
-                  onClick={(e) => {
-                      e.preventDefault();
-                      toggleCollapse();
-                  }}
-              >Link with href</a>
-          </p>
-          <div className={cn('collapse', { show: isOpen })}>
-              <div className="card card-body">
-                  {text}
-              </div>
-          </div>
-      </div>
-  );
-};
+    handlerClick = () => {
+        this.setState({ collapseStatus: !this.state.collapseStatus });
+    }
 
-export default Collapse;
+    render() {
+        const { text } = this.props;
+        const { collapseStatus } = this.state;
+
+        const collapseClass = cn("collapse", { show: collapseStatus });
+
+        return (
+            <div>
+                <p>
+                    <a
+                        className="btn btn-primary"
+                        onClick={this.handlerClick}
+                        data-bs-toggle="collapse"
+                        href="#"
+                        role="button"
+                        aria-expanded={collapseStatus}
+                    >
+                        Link with href
+                    </a>
+                </p>
+                <div className={collapseClass}>
+                    <div className="card card-body">{text}</div>
+                </div>
+            </div>
+        );
+    }
+}
+
+Collapse.defaultProps =
+{
+    opened: true
+}
 // END
