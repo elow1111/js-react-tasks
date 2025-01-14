@@ -1,69 +1,49 @@
 import axios from 'axios';
 import React from 'react';
 
-// BEGIN (write your solution here)
-import { useState, useEffect } from 'react';
-
-const Autocomplete = () => {
-  const [inputValue, setInputValue] = useState('');
-  const [countries, setCountries] = useState([]);
-  const [error, setError] = useState(null);
-
-  const fetchCountries = async (term) => {
-    if (term.length === 0) {
-      setCountries([]);
-      return;
+export default class Autocomplete extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            inputText: "",
+            data: []
+        };
     }
 
-    try {
-      const res = await axios.get('/countries', { params: { term } });
-      setCountries(res.data);
-      setError(null);
-    } catch (error) {
-      console.error('Error fetching countries:', error);
-      setError('Failed to load countries'); 
-      setCountries([]); 
+    handleChange = async (e) => {
+        const inputText = e.target.value;
+        this.setState({ inputText });
+
+        if (inputText) {
+            const res = await axios.get("/countries", { params: { term: inputText } });
+            this.setState({ data: res.data });
+        } else {
+            this.setState({ data: [] }); 
+        }
     }
-  };
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchCountries(inputValue);
-    }, 300);
+    render() {
+        const { inputText, data } = this.state;
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [inputValue]);
-
-  const handleChange = (event) => {
-    setInputValue(event.target.value);
-  };
-
-  return (
-    <div>
-      <form>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Enter Country"
-          value={inputValue}
-          onChange={handleChange}
-        />
-      </form>
-      {error && <div className="text-danger">{error}</div>} {}
-      {inputValue && countries.length > 0 && (
-        <ul>
-          {countries.map((country) => (
-            <li key={country}>{country}</li>
-          ))}
-        </ul>
-      )}
-      {inputValue && countries.length === 0 && !error && (
-        <div>No countries found</div> 
-      )}
-    </div>
-  );
-};
-
-export default Autocomplete;
-
-// END
+        return (
+            <div>
+                <form>
+                    <input
+                        value={inputText}
+                        onChange={this.handleChange}
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Country"
+                    />
+                </form>
+                {inputText && data.length > 0 && (
+                    <ul>
+                        {data.map((item) => (
+                            <li key={item}>{item}</li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        );
+    }
+}
