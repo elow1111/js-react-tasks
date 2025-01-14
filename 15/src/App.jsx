@@ -25,34 +25,30 @@ const themes = [
 ];
 
 class App extends React.Component {
-// BEGIN (write your solution here)
-constructor(props) {
-  super(props);
-  this.state = {
-    currentTheme: themes[0],
-  };
-  this.changeTheme = this.changeTheme.bind(this);
-}
-
-changeTheme(themeId) {
-  const selectedTheme = themes.find(theme => theme.id === themeId);
-  if (selectedTheme) {
-    this.setState({ currentTheme: selectedTheme });
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeTheme: themes[0].className,
+    };
   }
-}
 
-render() {
-  const contextValue = {
-    themes,
-    currentTheme: this.state.currentTheme,
-    changeTheme: this.changeTheme,
+  Switcher = (e) => {
+    const themeId = parseInt(e.currentTarget.value, 10);
+    const selectedTheme = themes.find((theme) => theme.id === themeId);
+    this.setState({ activeTheme: selectedTheme.className });
   };
 
-  return (
-    <ThemeContext.Provider value={contextValue}>
-      <div className={this.state.currentTheme.className}>
+  render() {
+    return (
+      <ThemeContext.Provider
+        value={{
+          themes: themes,
+          state: this.state,
+          Switcher: this.Switcher,
+        }}
+      >
         <ThemeSwitcher />
-        <Tabs defaultActiveKey="login" id="uncontrolled-tab-example" className="mb-3">
+        <Tabs>
           <Tab eventKey="login" title="Login">
             <Home />
           </Tab>
@@ -60,11 +56,9 @@ render() {
             <Profile />
           </Tab>
         </Tabs>
-      </div>
-    </ThemeContext.Provider>
-  );
-}
-// END
+      </ThemeContext.Provider>
+    );
+  }
 }
 
 export default App;
