@@ -1,21 +1,24 @@
 import React from 'react';
 
 // BEGIN (write your solution here)
-const DefinitionsList = ({ data }) => {
-    if (!data || data.length === 0) {
-      return null;
+export default class DefinitionsList extends React.Component {
+    render()
+    {
+        const data = this.props.data;
+        if (data.length === 0)
+        {
+            return null;
+        }
+        return (
+            <dl>
+            {data.map((definitions) => (
+            <React.Fragment key={definitions.id}>
+            <dt>{definitions.dt}</dt>
+            <dd>{definitions.dd}</dd>
+            </React.Fragment>
+            ))}
+            </dl>
+            );
     }
-  
-    return (
-      <dl>
-        {data.map(({ dt, dd, id }) => (
-          <React.Fragment key={id}>
-            <dt>{dt}</dt>
-            <dd>{dd}</dd>
-          </React.Fragment>
-        ))}
-      </dl>
-    );
-};
-export default DefinitionsList;
+}
 // END
