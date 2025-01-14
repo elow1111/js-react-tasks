@@ -1,78 +1,89 @@
+import React, { Component } from 'react';
 import axios from 'axios';
-import React from 'react';
 import update from 'immutability-helper';
-import Item from './Item.jsx';
-import routes from './routes.js';
+import Item from './Item';
+import routes from './routes';
 
-// BEGIN (write your solution here)
-
-class TodoBox extends React.Component {
+class TodoBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tasks: [], 
-      newTaskText: '', 
+      tasks: [],
+      newTaskText: '',
     };
   }
 
-  async componentDidMount() {
-  
-    const response = await axios.get(routes.tasksPath());
-    this.setState({ tasks: response.data });
+  componentDidMount() {
+
+    this.fetchTasks();
   }
 
-  handleInputChange = (event) => {
-    this.setState({ newTaskText: event.target.value });
+  fetchTasks = async () => {
+    try {
+      const response = await axios.get(routes.tasksPath());
+      this.setState({ tasks: response.data });
+    } catch (error) {
+      console.error('Error fetching tasks', error);
+    }
   };
 
-  handleAddTask = async (event) => {
-    event.preventDefault();
-    const { newTaskText } = this.state;
-    if (newTaskText.trim() === '') return;
-
-    const response = await axios.post(routes.tasksPath(), { text: newTaskText });
-    const newTask = response.data;
-
-    this.setState((prevState) => ({
-      tasks: update(prevState.tasks, { $push: [newTask] }),
-      newTaskText: '', 
-    }));
+  handleInputChange = (e) => {
+    this.setState({ newTaskText: e.target.value });
   };
 
-  toggleTaskState = async (task) => {
-    const { id, state } = task;
-    const newState = state === 'active' ? 'finished' : 'active';
-    const url = state === 'active' ? routes.finishTaskPath(id) : routes.activateTaskPath(id);
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    const { newTaskText, tasks } = this.state;
 
-    const response = await axios.patch(url);
-    const updatedTask = response.data;
+    try {
+      const response = await axios.post(routes.tasksPath(), { text: newTaskText });
+      const newTask = response.data;
 
-    const taskIndex = this.state.tasks.findIndex((t) => t.id === id);
-    this.setState((prevState) => ({
-      tasks: update(prevState.tasks, {
+      const updatedTasks = update(tasks, { $push: [newTask] });
+      this.setState({ tasks: updatedTasks, newTaskText: '' });
+    } catch (error) {
+      console.error('Error adding task', error);
+    }
+  };
+
+  toggleTaskState = async (id, currentState) => {
+    const { tasks } = this.state;
+    const route = currentState === 'active'
+      ? routes.finishTaskPath(id)
+      : routes.activateTaskPath(id);
+
+    try {
+      const response = await axios.patch(route);
+      const updatedTask = response.data;
+
+
+      const taskIndex = tasks.findIndex((task) => task.id === id);
+      const updatedTasks = update(tasks, {
         [taskIndex]: { $set: updatedTask },
-      }),
-    }));
+      });
+      this.setState({ tasks: updatedTasks });
+    } catch (error) {
+      console.error('Error updating task state', error);
+    }
   };
 
   render() {
     const { tasks, newTaskText } = this.state;
-
     const activeTasks = tasks.filter((task) => task.state === 'active');
     const finishedTasks = tasks.filter((task) => task.state === 'finished');
 
     return (
       <div>
         <div className="mb-3">
-          <form className="todo-form mx-3" onSubmit={this.handleAddTask}>
+          <form className="todo-form mx-3" onSubmit={this.handleSubmit}>
             <div className="d-flex col-md-3">
               <input
                 type="text"
                 value={newTaskText}
-                onChange={this.handleInputChange}
                 required
                 className="form-control me-3"
                 placeholder="I am going..."
+                onChange={this.handleInputChange}
               />
               <button type="submit" className="btn btn-primary">add</button>
             </div>
@@ -81,18 +92,28 @@ class TodoBox extends React.Component {
 
         <div className="todo-active-tasks">
           {activeTasks.map((task) => (
-            <Item key={task.id} task={task} onClick={() => this.toggleTaskState(task)} />
+            <Item
+              key={task.id}
+              task={task}
+              onClick={() => this.toggleTaskState(task.id, task.state)}
+            />
           ))}
         </div>
 
-        <div className="todo-finished-tasks">
-          {finishedTasks.map((task) => (
-            <Item key={task.id} task={task} onClick={() => this.toggleTaskState(task)} />
-          ))}
-        </div>
+        {finishedTasks.length > 0 && (
+          <div className="todo-finished-tasks">
+            {finishedTasks.map((task) => (
+              <Item
+                key={task.id}
+                task={task}
+                onClick={() => this.toggleTaskState(task.id, task.state)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   }
 }
+
 export default TodoBox;
-// END
