@@ -1,16 +1,18 @@
 import React from 'react';
 
 // BEGIN (write your solution here)
-const ListGroup = ({ children }) => {
-  const listItems = React.Children.map(children, (child) => (
-    <li className="list-group-item">{child}</li>
-  ));
-  return (
-    <ul className="list-group">
-      {listItems}
-    </ul>
-  );
-};
-
-export default ListGroup;
+export default class ListGroup extends React.Component
+{
+    render(){
+    const {children} = this.props
+    return(
+        <ul className="list-group">
+            {React.Children.map(children, (child) =>
+            {
+                return<li className='list-group-item'>{child}</li>
+            })}
+        </ul>
+    )
+    }
+}
 // END
