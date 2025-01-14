@@ -1,22 +1,20 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-// BEGIN (write your solution here)
+class Item extends Component {
+  render() {
+    const { task, onClick } = this.props;
 
-const Item = ({ task, onClick }) => {
-  const { text, state } = task;
-  const isFinished = state === 'finished';
-
-  return (
-    <div className="row">
-      <div className="col-1">{task.id}</div>
-      <div className="col">
-        <a href="#" className="todo-task" onClick={onClick}>
-          {isFinished ? <s>{text}</s> : text}
-        </a>
+    return (
+      <div className="row">
+        <div className="col-1">{task.id}</div>
+        <div className="col">
+          <a href="#" className="todo-task" onClick={onClick}>
+            {task.state === 'finished' ? <s>{task.text}</s> : task.text}
+          </a>
+        </div>
       </div>
-    </div>
-  );
-};
-  
+    );
+  }
+}
+
 export default Item;
-// END
